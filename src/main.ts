@@ -16,6 +16,8 @@ async function bootstrap() {
       .setTitle('API Documentation')
       .setDescription('scraping API')
       .setVersion('1.0')
+      .addBearerAuth()
+      .addApiKey({ type: 'apiKey' }, 'apikey')
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, documentFactory);

@@ -5,7 +5,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { DownloaderModule } from './modules/downloader/downloader.module';
 import { SholatModule } from './modules/sholat/sholat.module';
@@ -29,7 +28,7 @@ import { PrismaService } from './prisma.service';
     DownloaderModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [PrismaService],
   exports: [PrismaService],
 })
 export class AppModule {}

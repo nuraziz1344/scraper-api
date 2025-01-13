@@ -1,12 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { ApiBearerAuth, ApiSecurity } from '@nestjs/swagger';
+import { ApiKey } from './modules/auth/auth.guard';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @ApiBearerAuth()
+  @ApiKey()
+  @ApiSecurity('apikey')
+  default(): string {
+    return new Date().toLocaleString();
   }
 }

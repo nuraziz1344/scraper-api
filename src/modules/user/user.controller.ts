@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 
@@ -7,8 +7,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('/')
-  async getUsers() {
-    return this.userService.getUsers();
-  }
+  //   @Get('/')
+  //   @ApiBearerAuth()
+  //   async getUsers() {
+  //     return this.userService.getUsers();
+  //   }
 }
