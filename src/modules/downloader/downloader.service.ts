@@ -3,7 +3,6 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  Logger,
 } from '@nestjs/common';
 import fbDl from 'fb-downloader-scrapper';
 import { fromBuffer } from 'file-type';
@@ -116,7 +115,6 @@ export class DownloaderService {
     // const expiration = 1000 * 60 * 30;
     const expiration = 1000 * 60 * 3;
     const files = readdirSync('temp');
-    Logger.debug('Clearing temp files: ' + files.length);
     for (const file of files) {
       if (file !== '.gitkeep') {
         try {
