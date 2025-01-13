@@ -43,6 +43,10 @@ module.exports = {
         selector: 'typeLike',
         format: ['PascalCase'], // Allow PascalCase for types and classes
       },
+      {
+        selector: 'objectLiteralProperty',
+        format: ['camelCase', 'snake_case', 'PascalCase', 'kebab-case'],
+      },
     ],
   },
 };
