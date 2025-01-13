@@ -4,12 +4,12 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import fbDl from 'fb-downloader-scrapper';
 import { fromBuffer } from 'file-type';
 import { readdirSync, unlinkSync, writeFileSync } from 'fs';
 import parse from 'node-html-parser';
 import { join } from 'path';
 import xbogus from 'xbogus';
+const fbDl = require('fb-downloader-scrapper');
 
 @Injectable()
 export class DownloaderService {
