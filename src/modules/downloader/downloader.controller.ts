@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { ApiTags } from '@nestjs/swagger';
 import { DownloaderService } from './downloader.service';
@@ -9,12 +9,12 @@ export class DownloaderController {
   constructor(private readonly downloaderService: DownloaderService) {}
 
   @Get('facebook')
-  async facebook(url: string) {
+  async facebook(@Query('url') url: string) {
     return this.downloaderService.facebook(url);
   }
 
   @Get('tiktok')
-  async tiktok(url: string) {
+  async tiktok(@Query('url') url: string) {
     return this.downloaderService.tiktok(url);
   }
 
