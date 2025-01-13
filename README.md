@@ -6,7 +6,7 @@ Scraper & downloader API using NestJS & Prisma
 
 | Feature              | Status |
 | -------------------- | :----: |
-| Api Key Auth         |        |
+| Api Key Auth         |   ✅   |
 | Jadwal Sholat        |   ✅   |
 | Tiktok Downloader    |   ✅   |
 | Instagram Downloader |        |
