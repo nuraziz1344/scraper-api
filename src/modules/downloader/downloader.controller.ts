@@ -23,6 +23,13 @@ export class DownloaderController {
     return this.downloaderService.tiktok(url);
   }
 
+  @Get('instagram')
+  @ApiKey()
+  @ApiSecurity('apikey')
+  async instagram(@Query('url') url: string) {
+    return this.downloaderService.instagram(url);
+  }
+
   @Cron('* * * * *')
   async clearTemp() {
     this.downloaderService.clearTemp();

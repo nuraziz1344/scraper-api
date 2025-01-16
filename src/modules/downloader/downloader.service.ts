@@ -10,6 +10,7 @@ import parse from 'node-html-parser';
 import { join } from 'path';
 import xbogus from 'xbogus';
 const fbDl = require('fb-downloader-scrapper');
+const igDl = require('instagram-url-direct');
 
 @Injectable()
 export class DownloaderService {
@@ -102,6 +103,13 @@ export class DownloaderService {
             return { caption: caption, images };
           });
       });
+  }
+
+  async instagram(url: string) {
+    return igDl(url).then((res) => ({
+      caption: res.post_info.caption,
+      media: res.media_details,
+    }));
   }
 
   async saveTemp(buffer: Buffer) {
