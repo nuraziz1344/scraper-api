@@ -20,7 +20,9 @@ async function bootstrap() {
       .addApiKey({ type: 'apiKey' }, 'apikey')
       .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, documentFactory);
+    SwaggerModule.setup('docs', app, documentFactory, {
+      swaggerOptions: { persistAuthorization: true },
+    });
   }
 
   const host = configService.get<string>('HOST');
