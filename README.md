@@ -12,3 +12,4 @@ Scraper & downloader API using NestJS & Prisma
 | Instagram Downloader |   ✅   |
 | Facebook Downloader  |   ✅   |
 | WEBP converter       |        |
+| Youtube Downloader   |   ✅   |
