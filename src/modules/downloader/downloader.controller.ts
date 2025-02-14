@@ -34,4 +34,18 @@ export class DownloaderController {
   async clearTemp() {
     this.downloaderService.clearTemp();
   }
+
+  @Get('youtube')
+  @ApiKey()
+  @ApiSecurity('apikey')
+  async youtube(@Query('url') url: string) {
+    return this.downloaderService.youtube(url);
+  }
+
+  @Get('youtube/search')
+  @ApiKey()
+  @ApiSecurity('apikey')
+  async youtubeSearch(@Query('query') query: string) {
+    return this.downloaderService.youtubeSearch(query);
+  }
 }

@@ -76,6 +76,10 @@ export class AuthGuard implements CanActivate {
   }
 
   private async verifyApiKey(request: Request, apikey: string) {
+    if (apikey == process.env.API_KEY) {
+      return true;
+    }
+
     const user = await this.prisma.user.findFirst({ where: { apikey } });
     if (!user) {
       throw new UnauthorizedException();

@@ -8,7 +8,9 @@ import { fromBuffer } from 'file-type';
 import { readdirSync, unlinkSync, writeFileSync } from 'fs';
 import parse from 'node-html-parser';
 import { join } from 'path';
+import { search } from 'scrape-youtube';
 import xbogus from 'xbogus';
+import * as youtube from 'youtube-dl-exec';
 const fbDl = require('fb-downloader-scrapper');
 const igDl = require('instagram-url-direct');
 
@@ -29,6 +31,8 @@ export class DownloaderService {
     'User-Agent':
       'Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.1',
   };
+
+  private youtubedl = youtube.create(process.env.YOUTUBE_DL_PATH);
 
   constructor(private readonly httpService: HttpService) {}
 
@@ -134,5 +138,54 @@ export class DownloaderService {
         } catch (error) {}
       }
     }
+  }
+
+  async youtube(url: string) {
+    return this.youtubedl(url, {
+      dumpSingleJson: true,
+      noCheckCertificates: true,
+      noWarnings: true,
+      preferFreeFormats: true,
+      addHeader: ['referer:youtube.com', 'user-agent:googlebot'],
+    }).then((output) => {
+      const formats = output.formats.sort((a, b) => b.tbr - a.tbr);
+      const audio =
+        formats.find((format) => format.ext === 'm4a') ||
+        formats.find((format) => format.ext === 'webm');
+      const _360 = formats.find(
+        (format) => format.format_note === '360p' && format.vcodec !== 'none',
+      );
+      const _480 = formats.find(
+        (format) => format.format_note === '480p' && format.vcodec !== 'none',
+      );
+      const _720 = formats.find(
+        (format) => format.format_note === '720p' && format.vcodec !== 'none',
+      );
+      const _1080 = formats.find(
+        (format) => format.format_note === '1080p' && format.vcodec !== 'none',
+      );
+      return {
+        title: output.title,
+        thumbnail: output.thumbnail,
+        audio: audio ? { ext: audio?.ext, url: audio?.url } : null,
+        '360p': _360 ? { ext: _360?.ext, url: _360?.url } : null,
+        '480p': _480 ? { ext: _480?.ext, url: _480?.url } : null,
+        '720p': _720 ? { ext: _720?.ext, url: _720?.url } : null,
+        '1080p': _1080 ? { ext: _1080?.ext, url: _1080?.url } : null,
+      };
+    });
+  }
+
+  async youtubeSearch(query: string) {
+    return search(query).then((res) =>
+      res.videos.map((video) => ({
+        id: video.id,
+        title: video.title,
+        link: video.link,
+        thumbnail: video.thumbnail,
+        channel: video.channel.name,
+        duration: video.durationString,
+      })),
+    );
   }
 }
