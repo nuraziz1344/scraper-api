@@ -147,6 +147,7 @@ export class DownloaderService {
       noWarnings: true,
       preferFreeFormats: true,
       addHeader: ['referer:youtube.com', 'user-agent:googlebot'],
+      cookies: process.env.YOUTUBE_COOKIES,
     }).then((output) => {
       const formats = output.formats.sort((a, b) => b.tbr - a.tbr);
       const audio =
