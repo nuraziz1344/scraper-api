@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,6 +11,7 @@ async function bootstrap() {
   const appEnv = configService.get<string>('APP_ENV');
 
   if (appEnv === 'development') {
+    app.use(morgan('combined'));
     app.enableCors();
 
     const config = new DocumentBuilder()
@@ -31,8 +33,8 @@ async function bootstrap() {
   await app.listen(port, host);
 
   if (appEnv === 'development') {
-    Logger.log('Swagger is running on http://localhost:3000/docs', 'Bootstrap');
+    Logger.log(`Swagger is running on http://localhost:${port}/docs`);
   }
-  Logger.log(`Server running on http://${host}:${port}`, 'Bootstrap');
+  Logger.log(`Server running on http://${host}:${port}`);
 }
 bootstrap();
