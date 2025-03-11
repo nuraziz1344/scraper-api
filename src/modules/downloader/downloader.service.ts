@@ -149,10 +149,14 @@ export class DownloaderService {
       addHeader: ['referer:youtube.com', 'user-agent:googlebot'],
       cookies: process.env.YOUTUBE_COOKIES,
     }).then((output) => {
-      const formats = output.formats.sort((a, b) => b.tbr - a.tbr);
-      const audio = formats.find((format) => /webm|m4a|mp3s/.test(format.ext));
+      const audio =
+        output.formats.find((format) => /m4a|mp3/.test(format.ext)) ||
+        output.formats.find((format) => format.ext === 'webm');
 
-      const videos = formats.filter((v) => v.vcodec !== 'none');
+      const videos = output.formats
+        .filter((v) => v.vcodec !== 'none')
+        .sort((a, b) => b.tbr - a.tbr);
+
       const _360 = videos.find((format) => format.format_note === '360p');
       const _480 = videos.find((format) => format.format_note === '480p');
       const _720 = videos.find((format) => format.format_note === '720p');
