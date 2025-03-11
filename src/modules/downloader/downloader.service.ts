@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { fromBuffer } from 'file-type';
 import { readdirSync, unlinkSync, writeFileSync } from 'fs';
@@ -148,30 +149,54 @@ export class DownloaderService {
       preferFreeFormats: true,
       addHeader: ['referer:youtube.com', 'user-agent:googlebot'],
       cookies: process.env.YOUTUBE_COOKIES,
-    }).then((output) => {
-      const audio =
-        output.formats.find((format) => /m4a|mp3/.test(format.ext)) ||
-        output.formats.find((format) => format.ext === 'webm');
+    })
+      .then((output) => {
+        const formats = output.formats
+          .map((format) => ({
+            ...format,
+            filesize: Math.round(
+              (format.filesize || format.filesize_approx || 0) / 1024 / 1024,
+            ),
+          }))
+          .sort((a, b) => b.filesize - a.filesize);
 
-      const videos = output.formats
-        .filter((v) => v.vcodec !== 'none')
-        .sort((a, b) => b.tbr - a.tbr);
+        const audio =
+          formats.find((format) => /m4a|mp3/.test(format.ext)) ||
+          formats.find((format) => format.ext === 'webm');
 
-      const _360 = videos.find((format) => format.format_note === '360p');
-      const _480 = videos.find((format) => format.format_note === '480p');
-      const _720 = videos.find((format) => format.format_note === '720p');
-      const _1080 = videos.find((format) => format.format_note === '1080p');
+        const videos = formats
+          .filter((v) => v.vcodec !== 'none' && v.acodec !== 'none')
+          .sort((a, b) => b.tbr - a.tbr);
 
-      return {
-        title: output.title,
-        thumbnail: output.thumbnail,
-        audio: audio ? { ext: audio?.ext, url: audio?.url } : null,
-        '360p': _360 ? { ext: _360?.ext, url: _360?.url } : null,
-        '480p': _480 ? { ext: _480?.ext, url: _480?.url } : null,
-        '720p': _720 ? { ext: _720?.ext, url: _720?.url } : null,
-        '1080p': _1080 ? { ext: _1080?.ext, url: _1080?.url } : null,
-      };
-    });
+        const _360 = videos.find((format) => format.format_note === '360p');
+        const _480 = videos.find((format) => format.format_note === '480p');
+        const _720 = videos.find((format) => format.format_note === '720p');
+        const _1080 = videos.find((format) => format.format_note === '1080p');
+
+        return {
+          title: output.title,
+          thumbnail: output.thumbnail,
+          audio: audio
+            ? { ext: audio?.ext, url: audio?.url, sizeMB: audio.filesize }
+            : null,
+          '360p': _360
+            ? { ext: _360?.ext, url: _360?.url, sizeMB: _360.filesize }
+            : null,
+          '480p': _480
+            ? { ext: _480?.ext, url: _480?.url, sizeMB: _480.filesize }
+            : null,
+          '720p': _720
+            ? { ext: _720?.ext, url: _720?.url, sizeMB: _720.filesize }
+            : null,
+          '1080p': _1080
+            ? { ext: _1080?.ext, url: _1080?.url, sizeMB: _1080.filesize }
+            : null,
+        };
+      })
+      .catch((error) => {
+        Logger.error(JSON.stringify(error));
+        throw error;
+      });
   }
 
   async youtubeSearch(query: string) {
