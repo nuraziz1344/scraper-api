@@ -158,15 +158,12 @@ export class DownloaderService {
               (format.filesize || format.filesize_approx || 0) / 1024 / 1024,
             ),
           }))
-          .sort((a, b) => b.filesize - a.filesize);
+          .sort((a, b) => a.filesize - b.filesize);
 
-        const audio =
-          formats.find((format) => /m4a|mp3/.test(format.ext)) ||
-          formats.find((format) => format.ext === 'webm');
-
-        const videos = formats
-          .filter((v) => v.vcodec !== 'none' && v.acodec !== 'none')
-          .sort((a, b) => b.tbr - a.tbr);
+        const audio = formats.find((format) => /m4a|mp3|webm/.test(format.ext));
+        const videos = formats.filter(
+          (v) => v.vcodec !== 'none' && v.acodec !== 'none',
+        );
 
         const _360 = videos.find((format) => format.format_note === '360p');
         const _480 = videos.find((format) => format.format_note === '480p');
