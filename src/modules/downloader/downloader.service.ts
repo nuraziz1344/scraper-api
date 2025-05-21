@@ -111,10 +111,52 @@ export class DownloaderService {
   }
 
   async instagram(url: string) {
-    return igDl(url).then((res) => ({
-      caption: res.post_info.caption,
-      media: res.media_details,
-    }));
+    return igDl(url)
+      .then((res) => ({
+        caption: res.post_info.caption,
+        media: res.media_details,
+      }))
+      .catch((error) => {
+        Logger.error('Instagram error', error);
+        return this.instagram2(url);
+      });
+  }
+
+  async instagram2(url: string) {
+    const res = await this.youtubedl(url, {
+      dumpSingleJson: true,
+      noCheckCertificates: true,
+      noWarnings: true,
+      addHeader: ['referer:instagram.com', 'user-agent:googlebot'],
+    });
+
+    if (!res.formats) {
+      throw new InternalServerErrorException();
+    }
+
+    const media = res.formats
+      .map((format) => ({
+        ...format,
+        filesize: this.bytesToMB(format.filesize || format.filesize_approx),
+      }))
+      .sort((a, b) => b.tbr - a.tbr)
+      .filter((format) => format.vcodec !== 'none');
+
+    console.log(media.map((format) => format.tbr));
+
+    const video =
+      media.find((format) => format.acodec && format.acodec !== 'none') ||
+      media[0];
+
+    return {
+      caption: res.description,
+      media: {
+        ext: video.ext,
+        url: video.url,
+        sizeMB: video.filesize,
+        thumbnail: res.thumbnail,
+      },
+    };
   }
 
   async saveTemp(buffer: Buffer) {
