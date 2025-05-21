@@ -1,9 +1,9 @@
 import { HttpService } from '@nestjs/axios';
 import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
 } from '@nestjs/common';
 import { fromBuffer } from 'file-type';
 import { readdirSync, unlinkSync, writeFileSync } from 'fs';
@@ -141,6 +141,10 @@ export class DownloaderService {
     }
   }
 
+  bytesToMB(bytes: number) {
+    return Math.round((bytes || 0) / 1024 / 1024);
+  }
+
   async youtube(url: string) {
     return this.youtubedl(url, {
       dumpSingleJson: true,
@@ -151,16 +155,22 @@ export class DownloaderService {
       cookies: process.env.YOUTUBE_COOKIES,
     })
       .then((output) => {
+        if (!output.formats) {
+          Logger.error('No formats found', JSON.stringify(output));
+          throw new InternalServerErrorException('No formats found');
+        }
+
         const formats = output.formats
           .map((format) => ({
             ...format,
-            filesize: Math.round(
-              (format.filesize || format.filesize_approx || 0) / 1024 / 1024,
-            ),
+            filesize: this.bytesToMB(format.filesize || format.filesize_approx),
           }))
-          .sort((a, b) => a.filesize - b.filesize);
+          .sort((a, b) => b.filesize - a.filesize);
 
-        const audio = formats.find((format) => /m4a|mp3|webm/.test(format.ext));
+        const audio = formats.filter(
+          (format) => format.vcodec === 'none' && format.acodec !== 'none',
+        )[0];
+
         const videos = formats.filter(
           (v) => v.vcodec !== 'none' && v.acodec !== 'none',
         );
